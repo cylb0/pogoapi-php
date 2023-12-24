@@ -1,9 +1,8 @@
 <?php 
-require('./config/Database.php');
+require('./Managers/UserManager.php');
 
 try {
-    $database = Database::getInstance();
-    $pdo = $database->getPdo();
+    $user_manager = new UserManager();
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
 }

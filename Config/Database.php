@@ -2,7 +2,7 @@
 
 require("EnvManager.php");
 
-final class Database {
+class Database {
 
     private $pdo;
     private static $instance = null;
