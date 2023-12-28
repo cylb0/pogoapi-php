@@ -1,5 +1,6 @@
 <?php
 
+require_once('Config/Database.php');
 require_once('Managers/UserManager.php');
 require_once('Models/User.php');
 
@@ -13,15 +14,16 @@ final class UserManagerTest extends TestCase{
     
     protected function setUp(): void {
         $database_mock = $this->createMock(Database::class);
-        $this->pdo = new PDO('sqlite:Tests/database.db');
+        $this->pdo = new PDO('mysql:host=localhost;dbname=test_pogoapiphp', 'root', '');
+        $this->pdo->exec("DROP TABLE IF EXISTS users");
         $this->pdo->exec(
-            'CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT NOT NULL,
-                password TEXT NOT NULL,
-                email TEXT NOT NULL,
+            'CREATE TABLE users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(32) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )'
         );
         $database_mock->method('getPdo')->willReturn($this->pdo);
