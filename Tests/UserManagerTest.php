@@ -30,6 +30,7 @@ final class UserManagerTest extends TestCase{
     }
 
     protected function tearDown(): void {
+        $this->pdo = null;
         $this->user_manager = null;
     }
 
