@@ -13,8 +13,8 @@ final class UserManagerTest extends TestCase{
     
     protected function setUp(): void {
         $database_mock = $this->createMock(Database::class);
-        $pdo = new PDO('sqlite:Tests/database.db');
-        $pdo->exec(
+        $this->pdo = new PDO('sqlite:Tests/database.db');
+        $this->pdo->exec(
             'CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL,
@@ -24,9 +24,8 @@ final class UserManagerTest extends TestCase{
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )'
         );
-        $database_mock->method('getPdo')->willReturn($pdo);
+        $database_mock->method('getPdo')->willReturn($this->pdo);
         $this->user_manager = new UserManager($database_mock);
-        $this->pdo = $pdo;
     }
 
     protected function tearDown(): void {
