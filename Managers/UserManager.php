@@ -11,14 +11,14 @@ final class UserManager {
     }
 
     // Verify username requirements with regex.
-    private function verifyUsername($username): void {
+    public function verifyUsername($username): void {
         if (!preg_match('/^[a-zA-z0-9]{3,}$/', $username)) {
             throw new Exception('Username must be 3 characters long and can only contains letters and numbers.');
         }
     }
 
     // Verify password requirements with strlen and regex.
-    private function verifyPassword($password): void {
+    public function verifyPassword($password): void {
         if (strlen($password) < 12) {
             throw new Exception('Password should be at least 12 characters long.');
         }
@@ -29,7 +29,7 @@ final class UserManager {
     }
 
     // Verify email with FILTER.
-    private function verifyEmail($email): void {
+    public function verifyEmail($email): void {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new Exception('Email is not valid.');
         }
