@@ -1,6 +1,6 @@
 <?php
 
-require 'Config/Database.php';
+require_once 'Config/Database.php';
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
