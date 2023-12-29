@@ -44,16 +44,20 @@ final class UserManager {
 
     // Insert user in database
     public function insertUser($username, $hashed_password, $email): User {
-        $statement = $this->pdo->prepare('INSERT INTO users (username, password, email) VALUES (:username, :password, :email)');
+        try {
+            $statement = $this->pdo->prepare('INSERT INTO users (username, password, email) VALUES (:username, :password, :email)');
 
-        $statement->bindParam(':username', $username);
-        $statement->bindParam(':password', $hashed_password);
-        $statement->bindParam(':email', $email);
-
-        $statement->execute();
-        $id = $this->pdo->lastInsertId();
-
-        return new User($id, $username, $hashed_password, $email);
+            $statement->bindParam(':username', $username);
+            $statement->bindParam(':password', $hashed_password);
+            $statement->bindParam(':email', $email);
+    
+            $statement->execute();
+            $id = $this->pdo->lastInsertId();
+    
+            return new User($id, $username, $hashed_password, $email);
+        } catch (PDOException $e) {
+            throw new Exception('Database error: ' . $e->getMessage());
+        }
     }
 
     // Validates User, hashes password and adds User to database.
@@ -67,6 +71,5 @@ final class UserManager {
         } catch (Exception $e) {
             throw $e;
         }
-    }
-    
+    }    
 }
