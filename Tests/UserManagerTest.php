@@ -1,8 +1,7 @@
 <?php
 
-require_once 'Config/Database.php';
-require_once 'Managers/UserManager.php';
-require_once 'Models/User.php';
+require_once (__DIR__ . '/../Managers/UserManager.php');
+require_once (__DIR__ . '/../Models/User.php');
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 

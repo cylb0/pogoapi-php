@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__ . '/../Config/Database.php');
+require_once(__DIR__ . '/../Models/User.php');
 
 class UserManager {
 
@@ -37,7 +37,7 @@ class UserManager {
     }
 
     // Hashes password and register a user in database.
-    public function registerUser($username, $password, $email, UserRepository $user_repository) {
+    public function registerUser($username, $password, $email, UserRepository $user_repository): User {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         return $user_repository->insertUser($username, $hashed_password, $email);
     }
