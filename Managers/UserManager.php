@@ -72,4 +72,31 @@ final class UserManager {
             throw $e;
         }
     }    
+
+    // Retrieves a user by it's ID
+    public function getUserById($userId): ?User {
+
+        try {
+            if (!is_integer($userId) || $userId < 1) {
+                throw new Exception('User ID must be a positive integer.');
+            }
+    
+            $query = "SELECT * FROM users WHERE id = :userId";
+            $statement = $this->pdo->prepare($query);
+            $statement->bindParam(':userId', $userId);
+            $statement->execute();
+    
+            $result = $statement->fetch(PDO::FETCH_ASSOC);
+    
+            if ($result == false) {
+                return null;
+            }
+    
+            return new User($result['id'], $result['username'], $result['password'], $result['email']);
+        } catch (PDOException $e) {
+            throw new Exception('Database error : ' . $e->getMessage());
+        } catch (Exception $e) {
+            throw $e;
+        }        
+    }
 }

@@ -3,6 +3,7 @@
 require_once 'Config/Database.php';
 require_once 'Managers/UserManager.php';
 require_once 'Models/User.php';
+require_once 'Fixtures/Fixtures.php';
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
@@ -10,6 +11,7 @@ final class UserManagerTest extends TestCase{
 
     private $user_manager;
     private $pdo;
+    private $fixtures;
     
     protected function setUp(): void {
         $database_mock = $this->createMock(Database::class);
@@ -27,9 +29,13 @@ final class UserManagerTest extends TestCase{
         );
         $database_mock->method('getPdo')->willReturn($this->pdo);
         $this->user_manager = new UserManager($database_mock);
+        $this->fixtures = new Fixtures();
     }
 
     protected function tearDown(): void {
+        $query = "DROP TABLE users";
+        $statement = $this->pdo->prepare($query);
+        $statement->execute();
         $this->pdo = null;
         $this->user_manager = null;
     }
@@ -115,4 +121,30 @@ final class UserManagerTest extends TestCase{
         $this->assertInstanceOf(User::class, $user);
     }
 
+    #[TestDox('Returns the user it finds by its ID.')]
+    public function testGetUserByIdExistingUserId(): void {
+        $user_to_insert = $this->fixtures->usersFixtures()[0];
+        $user = $this->user_manager->addUser(
+            $user_to_insert['username'],
+            $user_to_insert['password'],
+            $user_to_insert['email']);
+        $user_retrieved = $this->user_manager->getUserById($user->getId());
+
+        $this->assertEquals($user->getId(), $user_retrieved->getId());
+    }
+
+    #[TestDox('Returns null when it doesn\'t find a user ID.')]
+    public function testGetUserByIdNonExistingUserId(): void {
+        $user_retrieved = $this->user_manager->getUserById(999);
+
+        $this->assertNull($user_retrieved);
+    }
+
+    #[TestDox('Throws an Exception when getUserByID is provided invalid ID.')]
+    public function testGetUserByIdInvalidUserId(): void {
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('User ID must be a positive integer.');
+        $user_retrieved = $this->user_manager->getUserById('a');
+    }
 }
