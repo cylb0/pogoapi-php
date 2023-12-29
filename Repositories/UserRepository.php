@@ -9,7 +9,7 @@ final class UserRepository {
     }
 
     // Insert user in database
-    public function insertUser($username, $hashed_password, $email): User {
+    public function addUser($username, $hashed_password, $email): User {
         try {
             $statement = $this->pdo->prepare('INSERT INTO users (username, password, email) VALUES (:username, :password, :email)');
 
