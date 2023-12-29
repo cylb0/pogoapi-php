@@ -39,7 +39,7 @@ class UserManager {
     // Hashes password and register a user in database.
     public function registerUser($username, $password, $email, UserRepository $user_repository): User {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        return $user_repository->insertUser($username, $hashed_password, $email);
+        return $user_repository->addUser($username, $hashed_password, $email);
     }
 
 }
