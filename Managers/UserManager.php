@@ -2,13 +2,7 @@
 
 require_once(__DIR__ . '/../Config/Database.php');
 
-final class UserManager {
-
-    private $pdo;
-
-    public function __construct(Database $database) {
-        $this->pdo = $database->getPdo();
-    }
+class UserManager {
 
     // Verify username requirements with regex.
     public function verifyUsername($username): void {
@@ -35,68 +29,17 @@ final class UserManager {
         }
     }
 
-    // Validates user
+    // Validates user.
     public function verifyUser($username, $password, $email): void {
         $this->verifyUsername($username);
         $this->verifyPassword($password);
         $this->verifyEmail($email);
     }
 
-    // Insert user in database
-    public function insertUser($username, $hashed_password, $email): User {
-        try {
-            $statement = $this->pdo->prepare('INSERT INTO users (username, password, email) VALUES (:username, :password, :email)');
-
-            $statement->bindParam(':username', $username);
-            $statement->bindParam(':password', $hashed_password);
-            $statement->bindParam(':email', $email);
-    
-            $statement->execute();
-            $id = $this->pdo->lastInsertId();
-    
-            return new User($id, $username, $hashed_password, $email);
-        } catch (PDOException $e) {
-            throw new Exception('Database error: ' . $e->getMessage());
-        }
+    // Hashes password and register a user in database.
+    public function registerUser($username, $password, $email, UserRepository $user_repository) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        return $user_repository->insertUser($username, $hashed_password, $email);
     }
 
-    // Validates User, hashes password and adds User to database.
-    public function addUser($username, $password, $email) {
-        try {
-            $this->verifyUser($username, $password, $email);
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            return $this->insertUser($username, $hashed_password, $email);
-        } catch (PDOException $e) {
-            throw new Exception('Database error : ' . $e->getMessage());
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }    
-
-    // Retrieves a user by it's ID
-    public function getUserById($userId): ?User {
-
-        try {
-            if (!is_integer($userId) || $userId < 1) {
-                throw new Exception('User ID must be a positive integer.');
-            }
-    
-            $query = "SELECT * FROM users WHERE id = :userId";
-            $statement = $this->pdo->prepare($query);
-            $statement->bindParam(':userId', $userId);
-            $statement->execute();
-    
-            $result = $statement->fetch(PDO::FETCH_ASSOC);
-    
-            if ($result == false) {
-                return null;
-            }
-    
-            return new User($result['id'], $result['username'], $result['password'], $result['email']);
-        } catch (PDOException $e) {
-            throw new Exception('Database error : ' . $e->getMessage());
-        } catch (Exception $e) {
-            throw $e;
-        }        
-    }
 }
