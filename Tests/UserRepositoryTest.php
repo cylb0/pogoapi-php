@@ -126,10 +126,18 @@ final class UserRepositoryTest extends TestCase {
     #[TestDox('Returns null when trying to update a non-existing user.')]
     public function testUpdateUserNonExistingUser(): void {
         $user = $this->user_repository->updateUser(3, 'newtest3', 'Password123!', 'test@email.com');
-        
+
         $this->assertNull($user);
     }
 
+    #[TestDox('Throws an error when trying to update a user with already used Unique data.')]
+    public function testUpdateUserUniqueAlreadyUsedCredentials(): void {
+        $existing_user = $this->fixtures->usersFixtures()[1];
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches('/Database error.*Integrity constraint violation.*for key.*username/');
+        $user = $this->user_repository->updateUser(1, $existing_user['username'], $existing_user['password'], $existing_user['email']);
+    }
 }
 
 
