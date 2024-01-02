@@ -1,16 +1,47 @@
 <?php
 
+require_once (__DIR__ . '/../Config/Database.php');
 require_once (__DIR__ . '/../Managers/UserManager.php');
+require_once (__DIR__ . '/../Repositories/UserRepository.php');
 require_once (__DIR__ . '/../Models/User.php');
+require_once (__DIR__ . '/../Fixtures/Fixtures.php');
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 final class UserManagerTest extends TestCase{
 
+    private $pdo;
     private $user_manager;
+    private $user_repository;
+    private $fixtures;
     
     protected function setUp(): void {
+        $database_mock = $this->createMock(Database::class);
+        $this->pdo = new PDO('mysql:host=localhost;dbname=test_pogoapiphp', 'root', '');
+        $this->pdo->exec("DROP TABLE IF EXISTS users");
+        $this->pdo->exec(
+            'CREATE TABLE users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(32) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )'
+        );
+
+        $database_mock->method('getPdo')->willReturn($this->pdo);
+        $this->user_repository = new UserRepository($database_mock);
+        $this->fixtures = new Fixtures();
         $this->user_manager = new UserManager();
+
+        // Add test user in database
+        $user_to_insert = $this->fixtures->usersFixtures()[0];
+        $user = $this->user_repository->addUser(
+            $user_to_insert['username'], 
+            $user_to_insert['password'], 
+            $user_to_insert['email']
+        );
     }
 
     protected function tearDown(): void {
@@ -80,5 +111,25 @@ final class UserManagerTest extends TestCase{
     public function testVerifyUserValidData(): void {
         $this->expectNotToPerformAssertions();
         $this->user_manager->verifyUser('username1', 'Password123!', 'email@example.com');
+    }
+
+    #[TestDox('Returns a user when credentials are correct.')]
+    public function testLoginUserValidCredentials(): void {
+        $user = $this->user_manager->loginUser('test1', 'Password123!', $this->user_repository);
+        $this->assertInstanceOf(User::class, $user);
+    }
+
+    #[TestDox('Throws an error when username is invalid.')]
+    public function testLoginUserInvalidUsername(): void {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('No user has been found for this username.');
+        $user = $this->user_manager->loginUser('test2', 'Password123!', $this->user_repository);
+    }
+
+    #[TestDox('Throws an error when password doesn\'t match.')]
+    public function testLoginUserInvalidPassword(): void {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Password doesn\'t match.');
+        $user = $this->user_manager->loginUser('test1', 'Password123?', $this->user_repository);
     }
 }

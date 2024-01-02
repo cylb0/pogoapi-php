@@ -42,4 +42,23 @@ class UserManager {
         return $user_repository->addUser($username, $hashed_password, $email);
     }
 
+    // Login function
+    public function loginUser($username, $password, $user_repository): ?User {
+        $user = $user_repository->getUserByUsername($username);
+
+        if (!$user) {
+            throw new Exception('No user has been found for this username.');
+        }
+
+        if (!password_verify($password, $user->getPassword())) {
+            throw new Exception('Password doesn\'t match.');
+        }
+
+        if ($user && password_verify($password, $user->getPassword())) {
+            return $user;
+        }
+
+        return null;
+    }
+
 }
