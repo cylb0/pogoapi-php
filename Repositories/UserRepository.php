@@ -72,4 +72,22 @@ final class UserRepository {
         }
     }
 
+    // Get all users
+    public function getAllUsers(): array {
+        try {
+            $query = "SELECT * FROM users";
+            $statement = $this->pdo->query($query);
+
+            // Create array of Users
+            $users = [];
+            while($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+                $users = new User($result['id'], $result['username'], $result['password'], $result['email']);
+            }
+
+            return $users;
+        } catch (PDOException $e) {
+            throw new Exception('Database error : ' . $e->getMessage());
+        }
+    }
+
 }

@@ -20,16 +20,22 @@ final class UserRepositoryTest extends TestCase {
         $this->pdo->exec(
             'CREATE TABLE users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(32) NOT NULL,
+                username VARCHAR(32) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL UNIQUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )'
         );
+
         $database_mock->method('getPdo')->willReturn($this->pdo);
         $this->user_repository = new UserRepository($database_mock);
+        
         $this->fixtures = new Fixtures();
+        // $fixtures = $this->fixtures->usersFixtures();
+        // foreach ($fixtures as $user) {
+        //     $this->pdo->exec("INSERT INTO users (username, password, email) VALUES ('{$user['username']}', '{$user['password']}', '{$user['email']}')");
+        // }        
     }
 
     protected function tearDown(): void {
@@ -104,7 +110,14 @@ final class UserRepositoryTest extends TestCase {
         $user_retrieved = $this->user_repository->getUserByUsername('test2');
 
         $this->assertNull($user_retrieved);
-    }    
+    }
+    
+    // #[TestDox('Returns an array of Users.')]
+    // public function testGetAllUsers(): void {
+    //     $users_retrieved = $this->user_repository->getAllUsers();
+
+    //     $this->assertInstanceOf()
+    // }
     
 }
 
