@@ -32,10 +32,10 @@ final class UserRepositoryTest extends TestCase {
         $this->user_repository = new UserRepository($database_mock);
         
         $this->fixtures = new Fixtures();
-        // $fixtures = $this->fixtures->usersFixtures();
-        // foreach ($fixtures as $user) {
-        //     $this->pdo->exec("INSERT INTO users (username, password, email) VALUES ('{$user['username']}', '{$user['password']}', '{$user['email']}')");
-        // }        
+        $fixtures = $this->fixtures->usersFixtures();
+        foreach ($fixtures as $user) {
+            $this->pdo->exec("INSERT INTO users (username, password, email) VALUES ('{$user['username']}', '{$user['password']}', '{$user['email']}')");
+        }        
     }
 
     protected function tearDown(): void {
@@ -48,33 +48,27 @@ final class UserRepositoryTest extends TestCase {
 
     #[TestDox('Saves a user in database.')]
     public function testInsertUserValidData(): void {
-        $user_to_insert = $this->fixtures->usersFixtures()[0];
         $user = $this->user_repository->addUser(
-            $user_to_insert['username'], 
-            $user_to_insert['password'], 
-            $user_to_insert['email']
+            'testUsername', 
+            '$2y$10$ZkGUrwh8E3NrF/jYYnPmdeexfdA/a.cmaL5x4iX/mZZGBJhkldW.O', 
+            'test@email.com'
         );
 
         $statement = $this->pdo->prepare('SELECT * FROM users WHERE username = :username');
-        $statement->bindParam(':username', $user_to_insert['username']);
+        $statement->bindParam(':username', $user->getUsername());
         $statement->execute();
         $results = $statement->fetch(PDO::FETCH_ASSOC);
 
-        $this->assertEquals($user_to_insert['username'], $results['username']);
+        $this->assertEquals($user->getUsername(), $results['username']);
         $this->assertInstanceOf(User::class, $user);
     }
 
     #[TestDox('Returns the user it finds by its ID.')]
     public function testGetUserByIdExistingUserId(): void {
-        $user_to_insert = $this->fixtures->usersFixtures()[0];
-        $user = $this->user_repository->addUser(
-            $user_to_insert['username'],
-            $user_to_insert['password'],
-            $user_to_insert['email']);
+        $user_retrieved = $this->user_repository->getUserById(1);
 
-        $user_retrieved = $this->user_repository->getUserById($user->getId());
-
-        $this->assertEquals($user->getId(), $user_retrieved->getId());
+        $this->assertInstanceOf(User::class, $user_retrieved);
+        $this->assertEquals($user_retrieved->getId(), 1);
     }
 
     #[TestDox('Returns null when it doesn\'t find a user ID.')]
@@ -89,35 +83,34 @@ final class UserRepositoryTest extends TestCase {
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('User ID must be a positive integer.');
+
         $user_retrieved = $this->user_repository->getUserById('a');
     }
 
     #[TestDox('Returns a User when username exists.')]
     public function testGetUserByUsernameExistingUser(): void {
-        $user_to_insert = $this->fixtures->usersFixtures()[0];
-        $user = $this->user_repository->addUser(
-            $user_to_insert['username'],
-            $user_to_insert['password'],
-            $user_to_insert['email']);
-
         $user_retrieved = $this->user_repository->getUserByUsername('test1');
 
-        $this->assertEquals($user->getUsername(), $user_retrieved->getUsername());
+        $this->assertInstanceOf(User::class, $user_retrieved);
+        $this->assertEquals('test1', $user_retrieved->getUsername());
     }    
 
     #[TestDox('Returns null when username doesn\'t exists.')]
     public function testGetUserByUsernameNonExistingUser(): void {
-        $user_retrieved = $this->user_repository->getUserByUsername('test2');
+        $user_retrieved = $this->user_repository->getUserByUsername('test3');
 
         $this->assertNull($user_retrieved);
     }
     
-    // #[TestDox('Returns an array of Users.')]
-    // public function testGetAllUsers(): void {
-    //     $users_retrieved = $this->user_repository->getAllUsers();
+    #[TestDox('Returns an array of Users.')]
+    public function testGetAllUsers(): void {
+        $users_retrieved = $this->user_repository->getAllUsers();
 
-    //     $this->assertInstanceOf()
-    // }
+        $this->assertCount(count($this->fixtures->usersFixtures()), $users_retrieved);
+        foreach($users_retrieved as $user) {
+            $this->assertInstanceOf(User::class, $user);
+        }
+    }
     
 }
 

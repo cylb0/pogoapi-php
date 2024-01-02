@@ -81,7 +81,7 @@ final class UserRepository {
             // Create array of Users
             $users = [];
             while($result = $statement->fetch(PDO::FETCH_ASSOC)) {
-                $users = new User($result['id'], $result['username'], $result['password'], $result['email']);
+                $users[] = new User($result['id'], $result['username'], $result['password'], $result['email']);
             }
 
             return $users;
