@@ -90,4 +90,28 @@ final class UserRepository {
         }
     }
 
+    // Updates a user
+    public function updateUser($id, $username, $password, $email): ?User {
+        try {
+            $query = "UPDATE users SET username = :username, password = :password, email = :email WHERE id = :id";
+            $statement = $this->pdo->prepare($query);
+
+            $statement->bindParam(':id', $id);
+            $statement->bindParam(':username', $username);
+            $statement->bindParam(':password', $password);
+            $statement->bindParam(':email', $email);
+    
+            $statement->execute();
+
+            if ($statement->rowCount() > 0) {
+                return new User($id, $username, $password, $email);
+            }
+
+            return null;
+
+        } catch (PDOException $e) {
+            throw new Exception('Database error : ' . $e->getMessage());
+        }
+    }
+
 }

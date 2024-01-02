@@ -111,7 +111,25 @@ final class UserRepositoryTest extends TestCase {
             $this->assertInstanceOf(User::class, $user);
         }
     }
-    
+
+    #[TestDox('Modifies a user\'s username.')]
+    public function testUpdateUserValidUser(): void {
+        $old_user = $this->fixtures->usersFixtures()[0];
+        $user = $this->user_repository->updateUser(1, 'newtest1', $old_user['password'], $old_user['email']);
+
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('newtest1', $user->getUsername());
+        $this->assertEquals($old_user['password'], $user->getPassword());
+        $this->assertEquals($old_user['email'], $user->getEmail());
+    }
+
+    #[TestDox('Returns null when trying to update a non-existing user.')]
+    public function testUpdateUserNonExistingUser(): void {
+        $user = $this->user_repository->updateUser(3, 'newtest3', 'Password123!', 'test@email.com');
+        
+        $this->assertNull($user);
+    }
+
 }
 
 
