@@ -138,6 +138,14 @@ final class UserRepositoryTest extends TestCase {
         $this->expectExceptionMessageMatches('/Database error.*Integrity constraint violation.*for key.*username/');
         $user = $this->user_repository->updateUser(1, $existing_user['username'], $existing_user['password'], $existing_user['email']);
     }
+
+    #[TestDox('Deletes a user.')]
+    public function testDeleteUserExistingUser(): void {
+        $this->user_repository->deleteUser(1);
+        $user_retrieved = $this->user_repository->getUserById(1);
+
+        $this->assertNull($user_retrieved);
+    }
 }
 
 

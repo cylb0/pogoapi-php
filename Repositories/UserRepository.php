@@ -114,4 +114,17 @@ final class UserRepository {
         }
     }
 
+    public function deleteUser($id): void {
+        try {
+            $query = "DELETE FROM users WHERE id = :id";
+            $statement = $this->pdo->prepare($query);
+            $statement->bindParam(':id', $id);
+            $statement->execute();
+        } catch (PDOException $e) {
+            throw new Exception('Database error : ' . $e->getMessage());
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
 }
