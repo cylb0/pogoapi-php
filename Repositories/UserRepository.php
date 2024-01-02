@@ -52,4 +52,24 @@ final class UserRepository {
         }        
     }
 
+    // Get a user by it's Username
+    public function getUserByUsername($username): ?User {
+        try {
+            $query = "SELECT * FROM users WHERE username = :username";
+            $statement = $this->pdo->prepare($query);
+            $statement->bindParam(':username', $username);
+            $statement->execute();
+            $result = $statement->fetch(PDO::FETCH_ASSOC);
+    
+            if ($result == false) {
+                return null;
+            }
+
+            return new User($result['id'], $result['username'], $result['password'], $result['email']);
+
+        } catch (PDOException $e) {
+            throw new Exception('Database error : ' . $e->getMessage());
+        }
+    }
+
 }

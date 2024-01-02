@@ -85,6 +85,26 @@ final class UserRepositoryTest extends TestCase {
         $this->expectExceptionMessage('User ID must be a positive integer.');
         $user_retrieved = $this->user_repository->getUserById('a');
     }
+
+    #[TestDox('Returns a User when username exists.')]
+    public function testGetUserByUsernameExistingUser(): void {
+        $user_to_insert = $this->fixtures->usersFixtures()[0];
+        $user = $this->user_repository->addUser(
+            $user_to_insert['username'],
+            $user_to_insert['password'],
+            $user_to_insert['email']);
+
+        $user_retrieved = $this->user_repository->getUserByUsername('test1');
+
+        $this->assertEquals($user->getUsername(), $user_retrieved->getUsername());
+    }    
+
+    #[TestDox('Returns null when username doesn\'t exists.')]
+    public function testGetUserByUsernameNonExistingUser(): void {
+        $user_retrieved = $this->user_repository->getUserByUsername('test2');
+
+        $this->assertNull($user_retrieved);
+    }    
     
 }
 
