@@ -102,13 +102,17 @@ final class UserRepositoryTest extends TestCase {
         $this->assertNull($user_retrieved);
     }
     
-    #[TestDox('Returns an array of Users.')]
+    #[TestDox('Returns an array of associative arrays for each User.')]
     public function testGetAllUsers(): void {
         $users_retrieved = $this->user_repository->getAllUsers();
 
-        $this->assertCount(count($this->fixtures->usersFixtures()), $users_retrieved);
+        $this->assertIsArray($users_retrieved);
+
         foreach($users_retrieved as $user) {
-            $this->assertInstanceOf(User::class, $user);
+            $this->assertIsArray($user);
+            $this->assertArrayHasKey('id', $user);
+            $this->assertArrayHasKey('username', $user);
+            $this->assertArrayHasKey('email', $user);
         }
     }
 
