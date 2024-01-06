@@ -1,6 +1,6 @@
 <?php
 
-final class UserRepository {
+class UserRepository {
 
     private $pdo;
 
