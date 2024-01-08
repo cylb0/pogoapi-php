@@ -16,5 +16,19 @@ final class Fixtures {
             ]
         ];
     }
+    
+    public function typesFixtures(): array {
+        return [
+            [
+                'name_en' => 'water',
+            ],
+            [
+                'name_en' => 'grass',
+            ],
+            [
+                'name_en' => 'fire',
+            ],
+        ];
+    }
 
 }
