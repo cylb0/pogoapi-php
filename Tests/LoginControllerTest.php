@@ -1,5 +1,7 @@
 <?php
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\KEY;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -16,6 +18,7 @@ class LoginControllerTest extends TestCase {
     private $user_repository;
     private $user_manager;
     private $fixtures;
+    private $login_controller;
 
     public function setUp(): void {
         $database_mock = $this->createMock(Database::class);
@@ -35,6 +38,8 @@ class LoginControllerTest extends TestCase {
         $database_mock->method('getPdo')->willReturn($this->pdo);
         $this->user_repository = new UserRepository($database_mock);
         $this->fixtures = new Fixtures();
+
+        $this->login_controller = new LoginController($this->user_repository, $this->user_manager);
 
         // Add test user in database
         $user_to_insert = $this->fixtures->usersFixtures()[0];
@@ -68,6 +73,9 @@ class LoginControllerTest extends TestCase {
         $this->assertEquals(200, $status);
         $this->assertArrayHasKey('message', $response_data);
         $this->assertEquals('Login success.', $response_data['message']);
+        $this->assertArrayHasKey('token', $response_data);
+        $this->assertIsString($response_data['token']);
+        $this->assertNotEmpty($response_data['token']);
         $this->assertArrayHasKey('data', $response_data);
         $this->assertArrayHasKey('id', $response_data['data']);
         $this->assertEquals(1, $response_data['data']['id']);
@@ -98,6 +106,23 @@ class LoginControllerTest extends TestCase {
             $this->assertArrayHasKey('message', $response_data);
             $this->assertEquals('Credentials are missing from request body.', $response_data['message']);
         }
+    }
+
+    #[TestDox('Generates a Json Web Token that can be decoded.')]
+    public function testGenerateJWT(): void {
+        $user_data = $this->fixtures->usersFixtures()[0];
+        $user = new User(1, $user_data['username'], $user_data['password'], $user_data['email']);
+        $jwt = $this->login_controller->generateJWT($user);
+
+        $this->assertIsString($jwt);
+        $this->assertNotEmpty($jwt);
+
+        $decoded = JWT::decode($jwt, new Key(getenv('JWT_SECRET_KEY'), getenv('JWT_ALGORITHM')));
+
+        $this->assertObjectHasProperty('iat', $decoded);
+        $this->assertObjectHasProperty('exp', $decoded);
+        $this->assertObjectHasProperty('id', $decoded);
+        $this->assertObjectHasProperty('username', $decoded);   
     }
 
 }
