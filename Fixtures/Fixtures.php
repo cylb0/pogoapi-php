@@ -21,12 +21,15 @@ final class Fixtures {
         return [
             [
                 'name_en' => 'water',
+                'name_fr' => 'eau'
             ],
             [
                 'name_en' => 'grass',
+                'name_fr' => 'plante'
             ],
             [
                 'name_en' => 'fire',
+                'name_fr' => ''
             ],
         ];
     }

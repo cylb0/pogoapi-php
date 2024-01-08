@@ -19,6 +19,7 @@ final class CreateTypeTable {
             $query = "CREATE TABLE types (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 name_en VARCHAR(255) NOT NULL UNIQUE,
+                name_fr VARCHAR(255) UNIQUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )";

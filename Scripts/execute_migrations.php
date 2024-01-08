@@ -32,9 +32,9 @@ try {
 
     //Insertion des fixtures type
     foreach($fixtures->typesFixtures() as $fixture) {
-        $database->getPdo()->exec("INSERT INTO types (name_en) VALUES ('{$fixture['name_en']}')");
+        $database->getPdo()->exec("INSERT INTO types (name_en, name_fr) VALUES ('{$fixture['name_en']}', '{$fixture['name_fr']}')");
         $id = $database->getPdo()->lastInsertId();
-        $type = new Type($id, $fixture['name_en']);
+        $type = new Type($id, $fixture['name_en'], $fixture['name_fr']);
         $name_en = $type->getNameEn();
         echo ("Record for type $name_en has been created.<br>");
     }
