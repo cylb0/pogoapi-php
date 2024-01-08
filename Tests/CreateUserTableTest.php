@@ -16,18 +16,27 @@ final class CreateUserTableTest extends TestCase {
         $database_mock = $this->createMock(Database::class);
         $database_mock->method('getPdo')->willReturn($this->pdo);
         $this->create_user_table = new CreateUserTable($database_mock);
-
-        // Drop table users before each test
-        $this->dropUsersTable();
+        // Creates table users
+        $this->pdo->exec(
+            'CREATE TABLE users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(32) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )'
+        );
     }
 
     protected function tearDown(): void {
+        $this->dropUsersTable();
         $this->pdo = null;
         $this->create_user_table = null;
     }
 
     protected function dropUsersTable(): void {
-        $query = "DROP TABLE users";
+        $query = "DROP TABLE IF EXISTS users";
         $this->pdo->exec($query);
     }
 
@@ -46,13 +55,12 @@ final class CreateUserTableTest extends TestCase {
     #[TestDox('Doesn\'t do anything if table user already exists.')]
     public function testUpTableExistsAlready() {
         $result = $this->create_user_table->up();
-        // Calls method up() a second time
-        $result = $this->create_user_table->up();
         $this->assertEquals('Users table already exists.', $result);
     }
 
     #[TestDox('Creates table users if it doesn\'t exist already.')]
     public function testUpTableDoesntExist() {
+        $this->dropUsersTable();
         $result = $this->create_user_table->up();
 
         $query = "SHOW TABLES LIKE 'users'";
@@ -66,13 +74,14 @@ final class CreateUserTableTest extends TestCase {
 
     #[TestDox('Drops table users if it exists.')]
     public function testDownTableExists() {
-        $up = $this->create_user_table->up();
-        $down = $this->create_user_table->down();
-        
         $does_table_exist = $this->doesTableExist();
-        
-        $this->assertEquals('Table Users has been deleted.', $down);
+        $this->assertTrue($does_table_exist);
+
+        $down = $this->create_user_table->down();        
+        $does_table_exist = $this->doesTableExist();
         $this->assertFalse($does_table_exist);
+
+        $this->assertEquals('Table Users has been deleted.', $down);
     }
 
 }
