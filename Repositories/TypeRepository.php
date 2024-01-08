@@ -51,4 +51,20 @@ class TypeRepository {
             throw $e;
         }
     }
+
+    //Get all types
+    public function getAllTypes(): array {
+        try {
+            $query = "SELECT * FROM types";
+            $statement = $this->pdo->query($query);
+
+            $types = [];
+            while($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+                $types[] = new Type($result['id'], $result['name_en'], $result['name_fr']);
+            }
+            return $types;
+        } catch (PDOException $e) {
+            throw new Exception('Database error : ' . $e->getMessage());
+        }
+    }
 }

@@ -76,4 +76,17 @@ final class TypeRepositoryTest extends TestCase {
         $this->assertEquals($type->getNameEn(), $type_searched['name_en']);
     }
 
+    #[TestDox('getAllTypes() returns an array of Types.')]
+    public function testGetAllTypes(): void {
+        $types = $this->type_repository->getAllTypes();
+        var_dump($types);
+        $this->assertIsArray($types);
+        $this->assertCount(3, $types);
+        
+        foreach ($types as $type) {
+            $this->assertInstanceOf(Type::class, $type);
+            $this->assertNotEmpty($type->getId());
+            $this->assertNotEmpty($type->getNameEn());
+        }
+    }
 }
