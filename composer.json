@@ -3,6 +3,7 @@
         "phpunit/phpunit": "^10.5"
     },
     "require": {
-        "guzzlehttp/guzzle": "^7.8"
+        "guzzlehttp/guzzle": "^7.8",
+        "firebase/php-jwt": "^6.10"
     }
 }

@@ -1,5 +1,8 @@
-# Vendor
+#Vendor
 /vendor
 
 #test logs
 test.log
+
+#.env
+.env
