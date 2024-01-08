@@ -10,19 +10,15 @@ final class Type {
         $this->name_en = $name_en;
     }
 
-    private function getId(): int {
+    public function getId(): int {
         return $this->id;
     }
 
-    private function setId(int $id): void {
-        $this->id = $id;
-    }
-
-    private function getNameEn(): string {
+    public function getNameEn(): string {
         return $this->name_en;
     }
 
-    private function setNameEn(string $name_en): void {
+    public function setNameEn(string $name_en): void {
         $this->name_en = $name_en;
     }
 
