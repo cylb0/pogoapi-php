@@ -1,13 +1,32 @@
 <?php
 
+/**
+ * Represents a database migration responsible for creating and dropping tables "types" and "type_effective".
+ * 
+ * It is responsible for setting up "types" table as well as the many to many relationships related to types effectiveness. 
+ * 
+ * @property PDO $pdo The instance of PDO used for database operations.
+ */
 final class CreateTypeTable {
 
     private $pdo;
-
+    
+    /**
+     * __construct
+     *
+     * @param  Database $database The Database instance that provides the PDO connection.
+     * @return void
+     */
     public function __construct(Database $database) {
         $this->pdo = $database->getPdo();
     }
-
+    
+    /**
+     * Executes a migration that creates tables "types" and "type_effective".
+     *
+     * @return string A message that indicates the result of the migration.
+     * @return PDOException If an error occurs while creating tables.
+     */
     public function up() {
         try {
             $check_query = "SHOW TABLES LIKE 'types'";
@@ -39,7 +58,13 @@ final class CreateTypeTable {
             return 'Database error while creating Types table: ' . $e->getMessage();
         }
     }
-
+    
+    /**
+     * Executes a migration to delete tables "type_effective" and "types".
+     *
+     * @return string A message indicating the result of the migration.
+     * @throws PDOException If an error occurs while deleting tables.
+     */
     public function down() {
         try {
             $query = "DROP TABLE IF EXISTS type_effective"; 
