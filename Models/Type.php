@@ -6,10 +6,10 @@
  * @property-read int $id The ID of the type.
  * @property string $name_en The english name for the type.
  * @property string $name_fr The french name for the type.
- * @property Type[] $strong_against The collection of types this type is effective against.
- * @property Type[] $vulnerable_to The collection of types that are effective against this type.
- * @property Type[] $weak_against The collection of types this type is not effective against.
- * @property Type[] $resistant_to The collection of types that are not effective against this type.
+ * @property Type[] $strong_against The collection of types this type is effective against. Inversed by $vulnerable_to.
+ * @property Type[] $vulnerable_to The collection of types that are effective against this type. Inversed by $strong_against.
+ * @property Type[] $weak_against The collection of types this type is not effective against. Inversed by $resistant_to.
+ * @property Type[] $resistant_to The collection of types that are not effective against this type. Inversed by $weak_against.
  */
 final class Type {
 
