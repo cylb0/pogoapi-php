@@ -27,62 +27,82 @@ final class CreateTypeTableTest extends TestCase {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )'
         );
+
+        // Create type_effective table for many to many relation on effectiveness
+        $this->pdo->exec(
+            'CREATE TABLE type_effective (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                type_id INT NOT NULL,
+                strong_against_id INT NOT NULL,
+                FOREIGN KEY (type_id) REFERENCES types(id),
+                FOREIGN KEY (strong_against_id) REFERENCES types(id)
+            )'
+        );
     }
 
     protected function tearDown(): void {
-        $this->dropTypesTable();
+        $this->dropTypesTable(['type_effective', 'types']);
         $this->pdo = null;
         $this->create_type_table = null;
     }
 
-    public function dropTypesTable(): void {
-        $query = "DROP TABLE IF EXISTS types";
-        $this->pdo->exec($query);
+    public function dropTypesTable(array $table_names): void {
+        foreach ($table_names as $table) {
+            $query = "DROP TABLE IF EXISTS $table";
+            $statement = $this->pdo->prepare($query);
+            $statement->execute();
+        }
     }
 
-    public function doesTableExist(): bool {
-        $query = "SHOW TABLES LIKE 'types'";
+    public function doTablesExist(array $table_names): bool {
+        $query = "SHOW TABLES";
         $statement = $this->pdo->query($query);
 
+        $existing_tables = [];
         while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-            if (in_array('types', $row)) {
-                return true;
+            $db_name = getenv('DB_NAME_TEST');
+            $existing_tables[] = $row["Tables_in_$db_name"];
+        }
+
+        foreach ($table_names as $table) {
+            if (!in_array($table, $existing_tables)) {
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
-    #[TestDox('Doesn\'t do anything if table already exists.')]
+    #[TestDox('Doesn\'t do anything if tables already exist.')]
     public function testUpTableAlreadyExists(): void {
-        $does_table_exists = $this->doesTableExist();
-        $this->assertTrue($does_table_exists);
+        $do_tables_exist = $this->doTablesExist(['type_effective', 'types']);
+        $this->assertTrue($do_tables_exist);
         $result = $this->create_type_table->up();
         $this->assertEquals($result, 'Types table already exists.');
     }
 
-    #[TestDox('Creates table types if it doesnt exist already.')]
+    #[TestDox('Creates table types and type_effective if they don\'t exist already.')]
     public function testUpTableDoesntExist(): void {
-        $this->dropTypesTable();
-        $does_table_exists = $this->doesTableExist();
-        $this->assertFalse($does_table_exists);
+        $this->dropTypesTable(['type_effective', 'types']);
+        $do_tables_exist = $this->doTablesExist(['type_effective', 'types']);
+        $this->assertFalse($do_tables_exist);
 
         $result = $this->create_type_table->up();
-        $does_table_exists = $this->doesTableExist();
-        $this->assertTrue($does_table_exists);
-        $this->assertEquals($result, 'Table Types has been created.');
+        $do_tables_exist = $this->doTablesExist(['type_effective', 'types']);
+        $this->assertTrue($do_tables_exist);
+        $this->assertEquals($result, 'Tables Types & Type_effective have been created.');
 
     }
 
-    #[TestDox('Drops table types if it exists.')]
+    #[TestDox('Drops tables types and type_effective if they exist.')]
     public function testDownTableExists(): void {
-        $does_table_exists = $this->doesTableExist();
-        $this->assertTrue($does_table_exists);
+        $do_tables_exist = $this->doTablesExist(['type_effective', 'types']);
+        $this->assertTrue($do_tables_exist);
 
         $result = $this->create_type_table->down();
-        $does_table_exists = $this->doesTableExist();
-        $this->assertFalse($does_table_exists);
-        $this->assertEquals($result, 'Table Types has been deleted.');
+        $do_tables_exist = $this->doTablesExist(['type_effective', 'types']);
+        $this->assertFalse($do_tables_exist);
+        $this->assertEquals($result, 'Tables Types & Type_effective have been deleted.');
     }
 
 }

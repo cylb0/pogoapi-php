@@ -24,8 +24,17 @@ final class CreateTypeTable {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )";
             $this->pdo->exec($query);
+
+            $query_type_effective = "CREATE TABLE type_effective (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                type_id INT NOT NULL,
+                strong_against_id INT NOT NULL,
+                FOREIGN KEY (type_id) REFERENCES types(id),
+                FOREIGN KEY (strong_against_id) REFERENCES types(id)
+            )";
+            $this->pdo->exec($query_type_effective);
     
-            return('Table Types has been created.');
+            return('Tables Types & Type_effective have been created.');
         } catch (PDOException $e) {
             return 'Database error while creating Types table: ' . $e->getMessage();
         }
@@ -33,9 +42,11 @@ final class CreateTypeTable {
 
     public function down() {
         try {
-            $query = "DROP TABLE IF EXISTS types"; 
+            $query = "DROP TABLE IF EXISTS type_effective"; 
             $this->pdo->exec($query);
-            return('Table Types has been deleted.');
+            $query = "DROP TABLE IF EXISTS types";
+            $this->pdo->exec($query);
+            return('Tables Types & Type_effective have been deleted.');
         } catch (PDOException $e) {
             return 'Database error while dropping Types table: ' . $e->getMessage();
         }
